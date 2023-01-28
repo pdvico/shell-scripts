@@ -1,37 +1,39 @@
 #!/bin/bash
 
 #---------------------------------------------------------------------------------
-# Installing Docker
+# Installing Docker on Ubuntu - https://docs.docker.com/engine/install/ubuntu/
 #---------------------------------------------------------------------------------
 
-# Create temporary folder (will not be deleted)
-mkdir -p ./temp && cd temp
+# Uninstall old versions
+sudo apt-get remove docker docker-engine docker.io containerd runc
 
-# Get the latest version of get-docker.sh script
-curl -fsSL https://get.docker.com -o get-docker.sh
+# Old Images, containers, volumes, and networks stored in /var/lib/docker/ 
+# To clean refers to https://docs.docker.com/engine/install/ubuntu/#uninstall-docker-engine
 
-# Run get-docker (as sudo)
-sudo sh get-docker.sh
+# 1 Set up the repository 
 
-# Add current user to group
-sudo usermod -aG docker $USER
+#Update the apt package index and install packages to allow apt to use a repository over HTTPS:
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
 
-#---------------------------------------------------------------------------------
-# Install Docker Compose
-#---------------------------------------------------------------------------------
+# Add Docker’s official GPG key:
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-COMPOSE_VERSION=$(curl --silent "https://api.github.com/repos/docker/compose/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+# Use the following command to set up the repository:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Download the latest release of docker
-sudo curl -L https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+# 2 Install Docker Engine
 
-# Apply permissions
-sudo chmod +x /usr/local/bin/docker-compose
+sudo apt-get update
 
-#---------------------------------------------------------------------------------
-# Check versions
-#---------------------------------------------------------------------------------
-docker version
-docker-compose version
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
-exit 0
+sudo docker run hello-world
+
+
