@@ -10,4 +10,4 @@ cd prerender-alpine
 # build image from docker file
 sudo docker build -t prerender .
 # run docker image
-sudo docker run --name prerender prerender
+sudo docker run -d --name prerender prerender
